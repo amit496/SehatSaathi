@@ -7,10 +7,10 @@ allprojects {
     }
 }
 
-// AGP 8+ requires namespace; older plugins (e.g. isar_flutter_libs) omit it.
+// AGP 8+ requires namespace; older plugins (e.g. isar_flutter_libs) use compileSdk 30.
 subprojects {
-    plugins.withId("com.android.library") {
-        extensions.configure<LibraryExtension>("android") {
+    afterEvaluate {
+        extensions.findByType<LibraryExtension>()?.apply {
             compileSdk = 36
             if (namespace.isNullOrBlank()) {
                 namespace = project.group.toString()
