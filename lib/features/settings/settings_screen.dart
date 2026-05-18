@@ -15,7 +15,7 @@ import '../../services/notification_service.dart';
 import '../../widgets/sehat_logo.dart';
 import '../../core/utils/screen_padding.dart';
 import '../legal/privacy_policy_screen.dart';
-import '../tutorial/tutorial_screen.dart';
+import 'widgets/tutorial_settings_card.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -116,19 +116,9 @@ class SettingsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 16),
               _section(s.tutorial),
-              Card(
-                child: ListTile(
-                  leading: const Icon(Icons.school_outlined),
-                  title: Text(s.tutorial),
-                  subtitle: Text(s.tutorialSubtitle),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => TutorialScreen(strings: s),
-                    ),
-                  ),
-                ),
+              TutorialSettingsCard(
+                strings: s,
+                onReplayOnboarding: () => ctrl.resetOnboarding(),
               ),
               const SizedBox(height: 16),
               _section(s.dataBackup),
@@ -204,12 +194,6 @@ class SettingsScreen extends ConsumerWidget {
                     await HealthRepository.instance.updateSettings(settings);
                     await ctrl.refresh();
                   },
-                ),
-              ),
-              Card(
-                child: ListTile(
-                  title: Text(s.showOnboardingAgain),
-                  onTap: () => ctrl.resetOnboarding(),
                 ),
               ),
               const SizedBox(height: 24),

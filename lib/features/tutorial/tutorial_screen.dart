@@ -5,9 +5,14 @@ import '../../core/theme/app_theme.dart';
 import '../../core/utils/screen_padding.dart';
 
 class TutorialScreen extends StatelessWidget {
-  const TutorialScreen({super.key, required this.strings});
+  const TutorialScreen({
+    super.key,
+    required this.strings,
+    this.initialTopicIndex,
+  });
 
   final AppStrings strings;
+  final int? initialTopicIndex;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +38,12 @@ class TutorialScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          ...topics.map((t) => _TopicCard(topic: t)),
+          ...topics.asMap().entries.map(
+                (e) => _TopicCard(
+                  topic: e.value,
+                  initiallyExpanded: initialTopicIndex == e.key,
+                ),
+              ),
         ],
       ),
     );
@@ -96,9 +106,13 @@ class _TutorialTopic {
 }
 
 class _TopicCard extends StatelessWidget {
-  const _TopicCard({required this.topic});
+  const _TopicCard({
+    required this.topic,
+    this.initiallyExpanded = false,
+  });
 
   final _TutorialTopic topic;
+  final bool initiallyExpanded;
 
   @override
   Widget build(BuildContext context) {
@@ -107,6 +121,7 @@ class _TopicCard extends StatelessWidget {
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
+          initiallyExpanded: initiallyExpanded,
           leading: Icon(topic.icon, color: AppTheme.primaryFor(context)),
           title: Text(
             topic.title,

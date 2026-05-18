@@ -200,6 +200,29 @@ class AppStrings {
   String get tutorialSubtitle => isHindi
       ? 'मुख्य सुविधाएँ कैसे उपयोग करें'
       : 'How to use the main features';
+  String get tutorialSectionHint => isHindi
+      ? 'हर सुविधा के लिए चरण-दर-चरण गाइड'
+      : 'Step-by-step guides for every feature';
+  String get tutorialTopicCount =>
+      isHindi ? '8 विषय • हिंदी / English' : '8 topics • Hindi / English';
+  String get tutorialBrowseTopics =>
+      isHindi ? 'विषय चुनें' : 'Browse topics';
+  String get openAppGuide =>
+      isHindi ? 'पूरी गाइड खोलें' : 'Open full guide';
+  String get tutorialReplayHint => isHindi
+      ? 'भाषा और प्रोफ़ाइल सेटअप दोबारा'
+      : 'Language & profile setup again';
+
+  List<String> get tutorialTopicLabels => [
+        dashboard,
+        medicine,
+        water,
+        vitals,
+        familyProfiles,
+        emergencyInfo,
+        dataBackup,
+        settings,
+      ];
 
   List<String> get tutorialHomeSteps => isHindi
       ? [
