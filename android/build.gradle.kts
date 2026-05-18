@@ -11,6 +11,7 @@ allprojects {
 subprojects {
     plugins.withId("com.android.library") {
         extensions.configure<LibraryExtension>("android") {
+            compileSdk = 36
             if (namespace.isNullOrBlank()) {
                 namespace = project.group.toString()
             }
