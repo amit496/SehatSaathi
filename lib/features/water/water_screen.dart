@@ -16,10 +16,13 @@ class WaterScreen extends ConsumerWidget {
     final ctrl = ref.read(appControllerProvider.notifier);
 
     return async.when(
+      skipLoadingOnReload: true,
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => Center(child: Text('$e')),
       data: (snap) {
-        if (snap == null) return const SizedBox.shrink();
+        if (snap == null) {
+          return const Center(child: CircularProgressIndicator());
+        }
         final s = snap.strings;
         final settings = snap.settings;
         final progress = snap.water.goalMl > 0

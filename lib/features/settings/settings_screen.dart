@@ -12,9 +12,13 @@ import '../../providers/app_providers.dart';
 import '../../screens/app_lock_screen.dart';
 import '../../services/app_lock_service.dart';
 import '../../services/notification_service.dart';
-import '../../widgets/sehat_logo.dart';
 import '../../core/utils/screen_padding.dart';
+import '../legal/about_screen.dart';
+import '../legal/data_safety_screen.dart';
+import '../legal/medical_disclaimer_screen.dart';
+import '../legal/permissions_info_screen.dart';
 import '../legal/privacy_policy_screen.dart';
+import '../legal/terms_of_service_screen.dart';
 import 'widgets/tutorial_settings_card.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -172,16 +176,68 @@ class SettingsScreen extends ConsumerWidget {
               const SizedBox(height: 16),
               _section(s.legal),
               Card(
-                child: ListTile(
-                  leading: const Icon(Icons.privacy_tip_outlined),
-                  title: Text(s.privacyPolicy),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => PrivacyPolicyScreen(strings: s),
+                child: Column(
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.info_outline),
+                      title: Text(s.about),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => _openLegal(
+                        context,
+                        AboutScreen(strings: s),
+                      ),
                     ),
-                  ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.privacy_tip_outlined),
+                      title: Text(s.privacyPolicy),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => _openLegal(
+                        context,
+                        PrivacyPolicyScreen(strings: s),
+                      ),
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.gavel_outlined),
+                      title: Text(s.termsOfService),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => _openLegal(
+                        context,
+                        TermsOfServiceScreen(strings: s),
+                      ),
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.medical_information_outlined),
+                      title: Text(s.medicalDisclaimer),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => _openLegal(
+                        context,
+                        MedicalDisclaimerScreen(strings: s),
+                      ),
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.security_outlined),
+                      title: Text(s.dataSafety),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => _openLegal(
+                        context,
+                        DataSafetyScreen(strings: s),
+                      ),
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.perm_device_information_outlined),
+                      title: Text(s.permissionsInfo),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => _openLegal(
+                        context,
+                        PermissionsInfoScreen(strings: s),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               Card(
@@ -196,30 +252,17 @@ class SettingsScreen extends ConsumerWidget {
                   },
                 ),
               ),
-              const SizedBox(height: 24),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    children: [
-                      const SehatLogo(size: 56),
-                      const SizedBox(height: 12),
-                      Text(
-                        s.appName,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(s.tagline),
-                    ],
-                  ),
-                ),
-              ),
             ],
           ),
         );
       },
+    );
+  }
+
+  void _openLegal(BuildContext context, Widget screen) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => screen),
     );
   }
 

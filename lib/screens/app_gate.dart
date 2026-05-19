@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/app_providers.dart';
 import '../services/app_lock_service.dart';
+import '../services/notification_service.dart';
 import 'app_lock_screen.dart';
 import 'main_shell.dart';
 import 'onboarding_screen.dart';
@@ -16,16 +17,28 @@ class AppGate extends ConsumerStatefulWidget {
 }
 
 class _AppGateState extends ConsumerState<AppGate> with WidgetsBindingObserver {
+  static const _minSplash = Duration(milliseconds: 900);
+  static const _maxSplash = Duration(seconds: 8);
+
   bool _showSplash = true;
+  bool _minSplashElapsed = false;
   bool _unlocked = true;
   bool _checkingLock = true;
+  bool _permissionsRequested = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Future.delayed(const Duration(milliseconds: 1400), _leaveSplash);
+    Future.delayed(_minSplash, () {
+      if (!mounted) return;
+      setState(() => _minSplashElapsed = true);
+      _tryLeaveSplash();
+    });
+    Future.delayed(_maxSplash, () {
+      if (!mounted || !_showSplash) return;
+      setState(() => _minSplashElapsed = true);
+      _leaveSplash();
     });
     _evaluateLock();
   }
@@ -37,11 +50,23 @@ class _AppGateState extends ConsumerState<AppGate> with WidgetsBindingObserver {
       _checkingLock = false;
       _unlocked = !enabled;
     });
+    _tryLeaveSplash();
+  }
+
+  void _tryLeaveSplash() {
+    if (!_minSplashElapsed || _checkingLock || !_showSplash) return;
+    final async = ref.read(appControllerProvider);
+    if (async.isLoading && !async.hasError) return;
+    _leaveSplash();
   }
 
   void _leaveSplash() {
     if (!mounted || !_showSplash) return;
     setState(() => _showSplash = false);
+    if (!_permissionsRequested) {
+      _permissionsRequested = true;
+      NotificationService.requestPermissions();
+    }
   }
 
   @override
@@ -65,7 +90,18 @@ class _AppGateState extends ConsumerState<AppGate> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    if (_showSplash || _checkingLock) return const SplashScreen();
+    ref.listen<AsyncValue<DashboardSnapshot?>>(
+      appControllerProvider,
+      (_, next) {
+        if (!next.isLoading || next.hasError) {
+          _tryLeaveSplash();
+        }
+      },
+    );
+
+    if (_showSplash || _checkingLock) {
+      return const SplashScreen();
+    }
 
     if (!_unlocked) {
       return AppLockScreen(
@@ -74,10 +110,82 @@ class _AppGateState extends ConsumerState<AppGate> with WidgetsBindingObserver {
     }
 
     final async = ref.watch(appControllerProvider);
-    return async.when(
-      loading: () => const SplashScreen(),
-      error: (e, _) => Scaffold(body: Center(child: Text('$e'))),
-      data: (snap) => snap == null ? const OnboardingScreen() : const MainShell(),
+
+    if (async.hasError) {
+      return _BootstrapError(
+        message: '${async.error}',
+        onRetry: () => ref.read(appControllerProvider.notifier).refresh(),
+      );
+    }
+
+    if (async.isLoading) {
+      return const _AppBootstrapLoader();
+    }
+
+    final snap = async.value;
+    if (snap == null) {
+      return const OnboardingScreen();
+    }
+
+    return const MainShell();
+  }
+}
+
+class _AppBootstrapLoader extends StatelessWidget {
+  const _AppBootstrapLoader();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(child: CircularProgressIndicator()),
+    );
+  }
+}
+
+class _BootstrapError extends StatelessWidget {
+  const _BootstrapError({
+    required this.message,
+    required this.onRetry,
+  });
+
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.error_outline,
+                size: 48,
+                color: Theme.of(context).colorScheme.error,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Could not load your health data',
+                style: Theme.of(context).textTheme.titleMedium,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                message,
+                style: Theme.of(context).textTheme.bodySmall,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              FilledButton(
+                onPressed: onRetry,
+                child: const Text('Try again'),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

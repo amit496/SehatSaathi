@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/l10n/app_strings.dart';
@@ -77,7 +79,6 @@ class AppController extends StateNotifier<AsyncValue<DashboardSnapshot?>> {
   }
 
   Future<void> refresh() async {
-    state = const AsyncValue.loading();
     try {
       final settings = await _repo.getSettings();
       _cachedSettings = settings;
@@ -107,19 +108,37 @@ class AppController extends StateNotifier<AsyncValue<DashboardSnapshot?>> {
       );
       final missed = DoseScheduleUtils.missedDoses(scheduled, doseLogs);
 
-      state = AsyncValue.data(
-        DashboardSnapshot(
-          settings: settings,
-          profile: profile,
-          medicines: medicines,
-          scheduledDoses: scheduled,
-          doseLogs: doseLogs,
-          water: water,
-          healthScore: score,
-          missedDoses: missed,
-        ),
+      final snapshot = DashboardSnapshot(
+        settings: settings,
+        profile: profile,
+        medicines: medicines,
+        scheduledDoses: scheduled,
+        doseLogs: doseLogs,
+        water: water,
+        healthScore: score,
+        missedDoses: missed,
       );
 
+      state = AsyncValue.data(snapshot);
+
+      unawaited(_syncNotifications(
+        medicines: medicines,
+        settings: settings,
+        missed: missed,
+        profileUuid: profile.uuid,
+      ));
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
+
+  Future<void> _syncNotifications({
+    required List<Medicine> medicines,
+    required AppSettings settings,
+    required List<ScheduledDose> missed,
+    required String profileUuid,
+  }) async {
+    try {
       await NotificationService.rescheduleAll(
         medicines: medicines,
         settings: settings,
@@ -130,10 +149,10 @@ class AppController extends StateNotifier<AsyncValue<DashboardSnapshot?>> {
         isHindi: settings.language == AppLanguage.hi,
       );
       await NotificationService.rescheduleDoctorVisits(
-        await _repo.upcomingVisits(profile.uuid),
+        await _repo.upcomingVisits(profileUuid),
       );
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
+    } catch (_) {
+      // Notifications must not block the home screen.
     }
   }
 

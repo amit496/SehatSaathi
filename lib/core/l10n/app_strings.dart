@@ -139,8 +139,45 @@ class AppStrings {
       ? 'इंस्टॉल के बाद पूर्ण रीस्टार्ट ज़रूरी (हॉट रीस्टार्ट नहीं)।'
       : 'Full app restart required after install (not hot restart).';
 
-  String get legal => isHindi ? 'कानूनी' : 'Legal';
+  String get legal => isHindi ? 'कानूनी और जानकारी' : 'Legal & info';
   String get privacyPolicy => isHindi ? 'गोपनीयता नीति' : 'Privacy policy';
+  String get termsOfService =>
+      isHindi ? 'सेवा की शर्तें' : 'Terms of service';
+  String get about => isHindi ? 'ऐप के बारे में' : 'About';
+  String get medicalDisclaimer =>
+      isHindi ? 'चिकित्सा अस्वीकरण' : 'Medical disclaimer';
+  String get dataSafety =>
+      isHindi ? 'डेटा सुरक्षा (Play Store)' : 'Data safety (Play Store)';
+  String get permissionsInfo =>
+      isHindi ? 'अनुमतियाँ' : 'App permissions';
+  String get version => isHindi ? 'संस्करण' : 'Version';
+  String get aboutOffline =>
+      isHindi ? 'ऑफ़लाइन पहले' : 'Offline-first';
+  String get aboutOfflineBody => isHindi
+      ? 'आपका स्वास्थ्य डेटा डिफ़ॉल्ट रूप से केवल इस फ़ोन पर रहता है।'
+      : 'Your health data stays on this phone by default.';
+  String get aboutHealth =>
+      isHindi ? 'स्वास्थ्य ऐप नोट' : 'Health app note';
+  String get aboutHealthBody => isHindi
+      ? 'रिमाइंडर और लॉग के लिए — चिकित्सा उपकरण या डॉक्टर की जगह नहीं।'
+      : 'For reminders and logs — not a medical device or substitute for care.';
+  String get openSourceLicenses =>
+      isHindi ? 'ओपन सोर्स लाइसेंस' : 'Open source licenses';
+  String get aboutDeveloper =>
+      isHindi ? 'डेवलपर और संपर्क' : 'Developer & contact';
+  String get developer => isHindi ? 'डेवलपर' : 'Developer';
+  String get supportEmail => isHindi ? 'सहायता ईमेल' : 'Support email';
+  String get privacyEmail => isHindi ? 'गोपनीयता ईमेल' : 'Privacy email';
+  String get legalInApp => isHindi ? 'ऐप में कानूनी जानकारी' : 'Legal info in app';
+  String get legalInAppBody => isHindi
+      ? 'कोई वेबसाइट नहीं — गोपनीयता नीति, शर्तें और अस्वीकरण इसी ऐप में हैं।'
+      : 'No website — privacy policy, terms, and disclaimers are all inside this app.';
+  String get aboutPlayStoreNote => isHindi
+      ? 'Play Store के लिए AppInfo में अपना Gmail डालें। गोपनीयता नीति ऐप में पूरी है।'
+      : 'Add your Gmail in AppInfo for Play Store. Full privacy policy is in Settings.';
+  String get aboutPlayStoreUrlHint => isHindi
+      ? 'Play Store को एक URL चाहिए? docs/PLAY_STORE.md में GitHub Pages (मुफ़्त, 5 मिनट) देखें।'
+      : 'Play Store needs one URL? See free GitHub Pages steps in docs/PLAY_STORE.md (no full website).';
   String get proDemo => 'Pro (demo)';
   String get proDemoHint => isHindi
       ? 'PDF/CSV और अनलिमिटेड प्रोफ़ाइल'

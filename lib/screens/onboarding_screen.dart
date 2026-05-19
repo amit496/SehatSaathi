@@ -23,6 +23,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final _name = TextEditingController();
   ProfileRelation _relation = ProfileRelation.self;
   bool _waterReminders = true;
+  bool _completing = false;
 
   @override
   void dispose() {
@@ -34,12 +35,28 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   AppStrings get _s => AppStrings.of(_language);
 
   Future<void> _complete() async {
-    await ref.read(appControllerProvider.notifier).completeOnboarding(
-          language: _language,
-          name: _name.text.trim().isEmpty ? 'User' : _name.text.trim(),
-          relation: _relation,
-          enableWaterReminders: _waterReminders,
-        );
+    if (_completing) return;
+    setState(() => _completing = true);
+    try {
+      await ref.read(appControllerProvider.notifier).completeOnboarding(
+            language: _language,
+            name: _name.text.trim().isEmpty ? 'User' : _name.text.trim(),
+            relation: _relation,
+            enableWaterReminders: _waterReminders,
+          );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _completing = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            _s.isHindi
+                ? 'सेटअप पूरा नहीं हो सका। फिर कोशिश करें।'
+                : 'Could not finish setup. Please try again.',
+          ),
+        ),
+      );
+    }
   }
 
   Future<void> _skip() async {
@@ -132,8 +149,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               width: double.infinity,
               height: 52,
               child: FilledButton(
-                onPressed: _finish,
-                child: Text(_page < 3 ? _s.next : _s.getStarted),
+                onPressed: _completing ? null : _finish,
+                child: _completing
+                    ? const SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text(_page < 3 ? _s.next : _s.getStarted),
               ),
             ),
           ),

@@ -90,10 +90,13 @@ class MedicineScreen extends ConsumerWidget {
     final async = ref.watch(appControllerProvider);
 
     return async.when(
+      skipLoadingOnReload: true,
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => Center(child: Text('$e')),
       data: (snap) {
-        if (snap == null) return const SizedBox.shrink();
+        if (snap == null) {
+          return const Center(child: CircularProgressIndicator());
+        }
         final s = snap.strings;
         final bottomInset = systemBottomInset(context);
 

@@ -41,6 +41,19 @@ class NotificationService {
     _handler = handler;
   }
 
+  /// Call after the first frame so permission dialogs have a visible activity.
+  static Future<void> requestPermissions() async {
+    if (!Platform.isAndroid || !_ready) return;
+    try {
+      final androidImpl = _plugin.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>();
+      await androidImpl?.requestNotificationsPermission();
+      await androidImpl?.requestExactAlarmsPermission();
+    } catch (e) {
+      debugPrint('NotificationService permissions: $e');
+    }
+  }
+
   static Future<void> init() async {
     if (_ready) return;
     try {
@@ -97,8 +110,6 @@ class NotificationService {
             importance: Importance.high,
           ),
         );
-        await androidImpl?.requestNotificationsPermission();
-        await androidImpl?.requestExactAlarmsPermission();
       }
 
       _ready = true;

@@ -47,7 +47,9 @@ class _VitalsScreenState extends ConsumerState<VitalsScreen>
   @override
   Widget build(BuildContext context) {
     final snap = ref.watch(appControllerProvider).value;
-    if (snap == null) return const SizedBox.shrink();
+    if (snap == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
     final s = snap.strings;
 
     return SafeArea(

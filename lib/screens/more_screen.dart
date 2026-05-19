@@ -6,6 +6,8 @@ import '../features/emergency/emergency_screen.dart';
 import '../features/family/family_screen.dart';
 import '../features/mood/mood_screen.dart';
 import '../features/reports/reports_screen.dart';
+import '../features/legal/about_screen.dart';
+import '../features/legal/privacy_policy_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/tutorial/tutorial_screen.dart';
 import '../core/l10n/app_strings.dart';
@@ -68,6 +70,20 @@ class MoreScreen extends ConsumerWidget {
             icon: Icons.school_outlined,
             title: s?.tutorial ?? 'App guide',
             screen: TutorialScreen(strings: s ?? AppStrings.of(AppLanguage.en)),
+          ),
+          _tile(
+            context,
+            icon: Icons.info_outline,
+            title: s?.about ?? 'About',
+            screen: AboutScreen(strings: s ?? AppStrings.of(AppLanguage.en)),
+          ),
+          _tile(
+            context,
+            icon: Icons.privacy_tip_outlined,
+            title: s?.privacyPolicy ?? 'Privacy policy',
+            screen: PrivacyPolicyScreen(
+              strings: s ?? AppStrings.of(AppLanguage.en),
+            ),
           ),
           _tile(
             context,
