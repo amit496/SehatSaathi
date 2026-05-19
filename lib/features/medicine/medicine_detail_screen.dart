@@ -7,6 +7,7 @@ import '../../core/constants/meal_timing_labels.dart';
 import '../../data/models/enums.dart';
 import '../../data/models/medicine.dart';
 import '../../providers/app_providers.dart';
+import '../../widgets/app_data_scaffold.dart';
 import 'medicine_form_screen.dart';
 import 'medicine_history_screen.dart';
 
@@ -20,36 +21,36 @@ class MedicineDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final snap = ref.watch(appControllerProvider).value;
-    if (snap == null) return const SizedBox.shrink();
-    final s = snap.strings;
+    return AppDataScaffold(
+      builder: (context, snap) {
+        final s = snap.strings;
+        final scheduled = snap.scheduledDoses
+            .where((d) => d.medicine.id == medicine.id)
+            .toList();
 
-    final scheduled = snap.scheduledDoses
-        .where((d) => d.medicine.id == medicine.id)
-        .toList();
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(medicine.name),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit_outlined),
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => MedicineFormScreen(
-                  profileUuid: medicine.profileUuid,
-                  medicine: medicine,
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(medicine.name),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.edit_outlined),
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => MedicineFormScreen(
+                      profileUuid: medicine.profileUuid,
+                      medicine: medicine,
+                    ),
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
-      body: ListView(
+          body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          if (medicine.photoPath != null)
+          if (medicine.photoPath != null &&
+              File(medicine.photoPath!).existsSync())
             ClipRRect(
               borderRadius: BorderRadius.circular(16),
               child: Image.file(
@@ -57,6 +58,7 @@ class MedicineDetailScreen extends ConsumerWidget {
                 height: 160,
                 width: double.infinity,
                 fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => const SizedBox.shrink(),
               ),
             ),
           const SizedBox(height: 16),
@@ -133,7 +135,9 @@ class MedicineDetailScreen extends ConsumerWidget {
             label: Text(s.medicineHistory),
           ),
         ],
-      ),
+          ),
+        );
+      },
     );
   }
 }

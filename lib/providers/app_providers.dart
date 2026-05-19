@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/l10n/app_strings.dart';
@@ -30,6 +31,16 @@ final exportServiceProvider = Provider<ExportService>(
   (ref) => ExportService(ref.watch(repositoryProvider)),
 );
 
+/// Rebuild [MaterialApp] theme only when dark mode changes — not on every refresh.
+final themeModeProvider = Provider<ThemeMode>((ref) {
+  final isDark = ref.watch(
+    appControllerProvider.select(
+      (async) => async.value?.settings.isDarkMode ?? false,
+    ),
+  );
+  return isDark ? ThemeMode.dark : ThemeMode.light;
+});
+
 class DashboardSnapshot {
   const DashboardSnapshot({
     required this.settings,
@@ -56,7 +67,7 @@ class DashboardSnapshot {
 
 class AppController extends StateNotifier<AsyncValue<DashboardSnapshot?>> {
   AppController(this._repo, this._backup) : super(const AsyncValue.loading()) {
-    refresh();
+    refresh(syncNotifications: true);
   }
 
   final HealthRepository _repo;
@@ -65,20 +76,45 @@ class AppController extends StateNotifier<AsyncValue<DashboardSnapshot?>> {
   AppSettings? _cachedSettings;
   List<HealthProfile> _profiles = [];
 
+  Timer? _notificationDebounce;
+  bool _notificationSyncPending = false;
+  _NotificationSyncArgs? _pendingSyncArgs;
+
   AppSettings? get settings => _cachedSettings;
   List<HealthProfile> get profiles => _profiles;
 
-  Future<void> _rescheduleNotifications() async {
-    final settings = await _repo.getSettings();
-    final snap = state.value;
-    if (snap == null) return;
-    await NotificationService.rescheduleAll(
-      medicines: snap.medicines,
-      settings: settings,
-    );
+  void _markNotificationsDirty() {
+    _notificationSyncPending = true;
   }
 
-  Future<void> refresh() async {
+  void _scheduleNotificationSync({
+    required List<Medicine> medicines,
+    required AppSettings settings,
+    required List<ScheduledDose> missed,
+    required String profileUuid,
+  }) {
+    _pendingSyncArgs = _NotificationSyncArgs(
+      medicines: medicines,
+      settings: settings,
+      missed: missed,
+      profileUuid: profileUuid,
+    );
+    _notificationDebounce?.cancel();
+    _notificationDebounce = Timer(const Duration(seconds: 2), () {
+      final args = _pendingSyncArgs;
+      if (args == null) return;
+      _notificationSyncPending = false;
+      _pendingSyncArgs = null;
+      unawaited(_syncNotifications(
+        medicines: args.medicines,
+        settings: args.settings,
+        missed: args.missed,
+        profileUuid: args.profileUuid,
+      ));
+    });
+  }
+
+  Future<void> refresh({bool syncNotifications = false}) async {
     try {
       final settings = await _repo.getSettings();
       _cachedSettings = settings;
@@ -121,12 +157,14 @@ class AppController extends StateNotifier<AsyncValue<DashboardSnapshot?>> {
 
       state = AsyncValue.data(snapshot);
 
-      unawaited(_syncNotifications(
-        medicines: medicines,
-        settings: settings,
-        missed: missed,
-        profileUuid: profile.uuid,
-      ));
+      if (syncNotifications || _notificationSyncPending) {
+        _scheduleNotificationSync(
+          medicines: medicines,
+          settings: settings,
+          missed: missed,
+          profileUuid: profile.uuid,
+        );
+      }
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
@@ -152,8 +190,49 @@ class AppController extends StateNotifier<AsyncValue<DashboardSnapshot?>> {
         await _repo.upcomingVisits(profileUuid),
       );
     } catch (_) {
-      // Notifications must not block the home screen.
+      // Notifications must not block UI.
     }
+  }
+
+  Future<void> _patchSnapshot({
+    AppSettings? settings,
+    HealthProfile? profile,
+    List<Medicine>? medicines,
+    List<MedicineDoseLog>? doseLogs,
+    WaterDayLog? water,
+  }) async {
+    final snap = state.value;
+    if (snap == null) {
+      await refresh();
+      return;
+    }
+
+    final s = settings ?? snap.settings;
+    final p = profile ?? snap.profile;
+    final meds = medicines ?? snap.medicines;
+    final logs = doseLogs ?? snap.doseLogs;
+    final w = water ?? snap.water;
+    final scheduled = _repo.scheduledDosesForToday(meds);
+    final missed = DoseScheduleUtils.missedDoses(scheduled, logs);
+    final score = HealthScoreCalculator.dailyScore(
+      scheduled: scheduled,
+      logs: logs,
+      waterConsumed: w.consumedMl,
+      waterGoal: w.goalMl,
+    );
+
+    state = AsyncValue.data(
+      DashboardSnapshot(
+        settings: s,
+        profile: p,
+        medicines: meds,
+        scheduledDoses: scheduled,
+        doseLogs: logs,
+        water: w,
+        healthScore: score,
+        missedDoses: missed,
+      ),
+    );
   }
 
   Future<void> handleNotificationAction(
@@ -194,7 +273,10 @@ class AppController extends StateNotifier<AsyncValue<DashboardSnapshot?>> {
         status: DoseStatus.skipped,
       );
     }
-    await refresh();
+
+    final doseLogs =
+        await _repo.doseLogsForDay(snap.profile.uuid, dateKey);
+    await _patchSnapshot(doseLogs: doseLogs);
   }
 
   Future<void> snoozeDose(ScheduledDose dose) async {
@@ -226,21 +308,34 @@ class AppController extends StateNotifier<AsyncValue<DashboardSnapshot?>> {
       relation: relation,
       isPrimary: true,
     );
-    await refresh();
+    _markNotificationsDirty();
+    await refresh(syncNotifications: true);
   }
 
   Future<void> setLanguage(AppLanguage language) async {
     final settings = await _repo.getSettings();
     settings.language = language;
     await _repo.updateSettings(settings);
-    await refresh();
+    _cachedSettings = settings;
+    final snap = state.value;
+    if (snap != null) {
+      await _patchSnapshot(settings: settings);
+    } else {
+      await refresh();
+    }
   }
 
   Future<void> toggleTheme() async {
     final settings = await _repo.getSettings();
     settings.isDarkMode = !settings.isDarkMode;
     await _repo.updateSettings(settings);
-    await refresh();
+    _cachedSettings = settings;
+    final snap = state.value;
+    if (snap != null) {
+      await _patchSnapshot(settings: settings);
+    } else {
+      await refresh();
+    }
   }
 
   Future<void> setWaterReminders({
@@ -252,12 +347,19 @@ class AppController extends StateNotifier<AsyncValue<DashboardSnapshot?>> {
     if (times != null) settings.waterReminderTimes = times;
     await _repo.updateSettings(settings);
     await NotificationService.rescheduleWaterReminders(settings);
-    await refresh();
+    _cachedSettings = settings;
+    final snap = state.value;
+    if (snap != null) {
+      await _patchSnapshot(settings: settings);
+    } else {
+      await refresh(syncNotifications: true);
+    }
   }
 
   Future<void> setActiveProfile(String uuid) async {
     await _repo.setActiveProfile(uuid);
-    await refresh();
+    _markNotificationsDirty();
+    await refresh(syncNotifications: true);
   }
 
   Future<void> saveProfile({
@@ -275,7 +377,8 @@ class AppController extends StateNotifier<AsyncValue<DashboardSnapshot?>> {
 
   Future<void> deleteProfile(String uuid) async {
     await _repo.deleteProfile(uuid);
-    await refresh();
+    _markNotificationsDirty();
+    await refresh(syncNotifications: true);
   }
 
   Future<void> updateDoseStatus(
@@ -294,41 +397,45 @@ class AppController extends StateNotifier<AsyncValue<DashboardSnapshot?>> {
     if (status == DoseStatus.taken) {
       await _repo.decrementRefillOnTaken(dose.medicine.id);
     }
-    await refresh();
+    final doseLogs =
+        await _repo.doseLogsForDay(snap.profile.uuid, dose.dateKey);
+    await _patchSnapshot(doseLogs: doseLogs);
   }
 
   Future<void> addWater(int ml) async {
     final snap = state.value;
     if (snap == null) return;
-    await _repo.addWater(snap.profile.uuid, ml);
-    await refresh();
+    final water = await _repo.addWater(snap.profile.uuid, ml);
+    await _patchSnapshot(water: water);
   }
 
   Future<void> setWaterGoal(int ml) async {
     final snap = state.value;
     if (snap == null) return;
     await _repo.setWaterGoal(snap.profile.uuid, ml);
-    await refresh();
+    final water = await _repo.waterForToday(snap.profile.uuid);
+    await _patchSnapshot(water: water);
   }
 
   Future<Medicine> saveMedicine(Medicine medicine) async {
     final saved = await _repo.saveMedicine(medicine);
-    await _rescheduleNotifications();
-    await refresh();
+    _markNotificationsDirty();
+    await refresh(syncNotifications: true);
     return saved;
   }
 
   Future<void> deleteMedicine(int id) async {
     await _repo.deleteMedicine(id);
-    await _rescheduleNotifications();
-    await refresh();
+    _markNotificationsDirty();
+    await refresh(syncNotifications: true);
   }
 
   Future<void> exportBackup() => _backup.shareBackup();
 
   Future<void> restoreBackup(String raw) async {
     await _backup.restoreFromJson(raw);
-    await refresh();
+    _markNotificationsDirty();
+    await refresh(syncNotifications: true);
   }
 
   Future<void> resetOnboarding() async {
@@ -337,6 +444,26 @@ class AppController extends StateNotifier<AsyncValue<DashboardSnapshot?>> {
     await _repo.updateSettings(settings);
     await refresh();
   }
+
+  @override
+  void dispose() {
+    _notificationDebounce?.cancel();
+    super.dispose();
+  }
+}
+
+class _NotificationSyncArgs {
+  const _NotificationSyncArgs({
+    required this.medicines,
+    required this.settings,
+    required this.missed,
+    required this.profileUuid,
+  });
+
+  final List<Medicine> medicines;
+  final AppSettings settings;
+  final List<ScheduledDose> missed;
+  final String profileUuid;
 }
 
 final appControllerProvider =

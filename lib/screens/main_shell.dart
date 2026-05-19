@@ -17,21 +17,32 @@ class MainShell extends ConsumerStatefulWidget {
 
 class _MainShellState extends ConsumerState<MainShell> {
   int _index = 0;
-
-  void _goHome() => setState(() => _index = 0);
+  late final List<Widget> _pages;
 
   @override
-  Widget build(BuildContext context) {
-    final snap = ref.watch(appControllerProvider).value;
-    final labels = snap?.strings;
-
-    final pages = [
-      const DashboardScreen(),
+  void initState() {
+    super.initState();
+    _pages = [
+      DashboardScreen(onSelectTab: _selectTab),
       MedicineScreen(onBack: _goHome),
       WaterScreen(onBack: _goHome),
       VitalsScreen(onBack: _goHome),
       MoreScreen(onBack: _goHome),
     ];
+  }
+
+  void _goHome() => setState(() => _index = 0);
+
+  void _selectTab(int index) {
+    if (index < 0 || index >= _pages.length) return;
+    setState(() => _index = index);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final labels = ref.watch(
+      appControllerProvider.select((a) => a.value?.strings),
+    );
 
     return PopScope(
       canPop: _index == 0,
@@ -39,10 +50,10 @@ class _MainShellState extends ConsumerState<MainShell> {
         if (!didPop) _goHome();
       },
       child: Scaffold(
-        body: IndexedStack(index: _index, children: pages),
+        body: IndexedStack(index: _index, children: _pages),
         bottomNavigationBar: NavigationBar(
           selectedIndex: _index,
-          onDestinationSelected: (i) => setState(() => _index = i),
+          onDestinationSelected: _selectTab,
           destinations: [
             NavigationDestination(
               icon: const Icon(Icons.home_outlined),

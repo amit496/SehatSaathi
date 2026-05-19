@@ -34,7 +34,11 @@ class SettingsScreen extends ConsumerWidget {
       error: (e, _) => Center(child: Text('$e')),
       data: (snap) {
         final settings = snap?.settings ?? ctrl.settings;
-        if (settings == null) return const SizedBox.shrink();
+        if (settings == null) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
         final s = AppStrings.of(settings.language);
 
         return Scaffold(
@@ -122,7 +126,11 @@ class SettingsScreen extends ConsumerWidget {
               _section(s.tutorial),
               TutorialSettingsCard(
                 strings: s,
-                onReplayOnboarding: () => ctrl.resetOnboarding(),
+                onReplayOnboarding: () async {
+                  Navigator.of(context, rootNavigator: true)
+                      .popUntil((route) => route.isFirst);
+                  await ctrl.resetOnboarding();
+                },
               ),
               const SizedBox(height: 16),
               _section(s.dataBackup),

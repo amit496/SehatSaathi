@@ -8,6 +8,7 @@ import '../../data/models/mood_log.dart';
 import '../../data/repositories/health_repository.dart';
 import '../../core/utils/screen_padding.dart';
 import '../../providers/app_providers.dart';
+import '../../widgets/app_data_scaffold.dart';
 import 'breathing_screen.dart';
 
 class MoodScreen extends ConsumerStatefulWidget {
@@ -35,13 +36,16 @@ class _MoodScreenState extends ConsumerState<MoodScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final snap = ref.watch(appControllerProvider).value;
-    if (snap == null) return const SizedBox.shrink();
-    final s = snap.strings;
-
-    return Scaffold(
-      appBar: AppBar(title: Text(s.moodWellness)),
-      body: RefreshIndicator(
+    return AppDataScaffold(
+      appBar: AppBar(
+        title: Text(
+          ref.watch(appControllerProvider).value?.strings.moodWellness ??
+              'Mood',
+        ),
+      ),
+      builder: (context, snap) {
+        final s = snap.strings;
+        return RefreshIndicator(
         onRefresh: _load,
         child: ListView(
           padding: pagePadding(context, bottom: 32),
@@ -101,7 +105,8 @@ class _MoodScreenState extends ConsumerState<MoodScreen> {
               ),
           ],
         ),
-      ),
+      );
+      },
     );
   }
 

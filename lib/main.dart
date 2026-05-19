@@ -40,19 +40,18 @@ class _SehatSaathiAppState extends ConsumerState<SehatSaathiApp> {
 
   @override
   Widget build(BuildContext context) {
-    final async = ref.watch(appControllerProvider);
-    final isDark = async.value?.settings.isDarkMode ?? false;
+    final themeMode = ref.watch(themeModeProvider);
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'SehatSaathi',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
+      themeMode: themeMode,
       builder: (context, child) {
         final dark = Theme.of(context).brightness == Brightness.dark;
         SystemChrome.setSystemUIOverlayStyle(AppTheme.overlayFor(dark));
-        return child ?? const SizedBox.shrink();
+        return child ?? const ColoredBox(color: Color(0xFFF8FAFA));
       },
       home: const AppGate(),
     );

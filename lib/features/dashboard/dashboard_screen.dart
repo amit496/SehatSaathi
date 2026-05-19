@@ -6,12 +6,12 @@ import '../../data/models/enums.dart';
 import '../../providers/app_providers.dart';
 import '../../widgets/progress_ring.dart';
 import '../../widgets/screen_header.dart';
-import '../medicine/medicine_screen.dart';
 import '../reports/weekly_summary_screen.dart';
-import '../water/water_screen.dart';
 
 class DashboardScreen extends ConsumerWidget {
-  const DashboardScreen({super.key});
+  const DashboardScreen({super.key, this.onSelectTab});
+
+  final void Function(int tabIndex)? onSelectTab;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -75,12 +75,7 @@ class DashboardScreen extends ConsumerWidget {
                       ),
                       subtitle: Text(s.missedDosesCount(missed.length)),
                       trailing: const Icon(Icons.chevron_right),
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const MedicineScreen(),
-                        ),
-                      ),
+                      onTap: () => onSelectTab?.call(1),
                     ),
                   ),
                 ],
@@ -139,22 +134,12 @@ class DashboardScreen extends ConsumerWidget {
                     ActionChip(
                       avatar: const Icon(Icons.medication, size: 18),
                       label: Text(s.addMedicine),
-                      onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (ctx) => MedicineScreen(
-                            onBack: () => Navigator.pop(ctx),
-                          ),
-                        ),
-                      ),
+                      onPressed: () => onSelectTab?.call(1),
                     ),
                     ActionChip(
                       avatar: const Icon(Icons.water_drop, size: 18),
                       label: Text(s.logWater),
-                      onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const WaterScreen()),
-                      ),
+                      onPressed: () => onSelectTab?.call(2),
                     ),
                     ActionChip(
                       avatar: const Icon(Icons.bar_chart, size: 18),

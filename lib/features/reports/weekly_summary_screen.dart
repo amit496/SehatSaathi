@@ -10,52 +10,32 @@ import '../../core/utils/weekly_stats.dart';
 import '../../data/models/medicine.dart';
 import '../../data/repositories/health_repository.dart';
 import '../../providers/app_providers.dart';
+import '../../widgets/app_data_scaffold.dart';
 
-class WeeklySummaryScreen extends ConsumerWidget {
+class WeeklySummaryScreen extends ConsumerStatefulWidget {
   const WeeklySummaryScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final snap = ref.watch(appControllerProvider).value;
-    if (snap == null) return const SizedBox.shrink();
-    final s = snap.strings;
-    final repo = HealthRepository.instance;
+  ConsumerState<WeeklySummaryScreen> createState() =>
+      _WeeklySummaryScreenState();
+}
 
-    return FutureBuilder<List<DayHealthStat>>(
-      future: _load(repo, snap.profile.uuid, snap.medicines),
-      builder: (context, snapshot) {
-        final stats = snapshot.data ?? [];
-        return Scaffold(
-          appBar: AppBar(title: Text(s.weeklySummary)),
-          body: snapshot.connectionState == ConnectionState.waiting
-              ? const Center(child: CircularProgressIndicator())
-              : ListView(
-                  padding: pagePadding(context, bottom: 32),
-                  children: [
-                    Text(
-                      s.disclaimer,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppTheme.mutedText(context),
-                          ),
-                    ),
-                    const SizedBox(height: 20),
-                    _ChartCard(
-                      title: s.medicineAdherence,
-                      color: AppTheme.primaryFor(context),
-                      values: stats.map((e) => e.medicinePercent.toDouble()).toList(),
-                      labels: stats.map((e) => DateFormat.E().format(e.date)).toList(),
-                    ),
-                    const SizedBox(height: 16),
-                    _ChartCard(
-                      title: s.waterIntake,
-                      color: const Color(0xFF0EA5E9),
-                      values: stats.map((e) => e.waterPercent.toDouble()).toList(),
-                      labels: stats.map((e) => DateFormat.E().format(e.date)).toList(),
-                    ),
-                  ],
-                ),
-        );
-      },
+class _WeeklySummaryScreenState extends ConsumerState<WeeklySummaryScreen> {
+  Future<List<DayHealthStat>>? _statsFuture;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _loadIfNeeded();
+  }
+
+  void _loadIfNeeded() {
+    final snap = ref.read(appControllerProvider).value;
+    if (snap == null) return;
+    _statsFuture ??= _load(
+      HealthRepository.instance,
+      snap.profile.uuid,
+      snap.medicines,
     );
   }
 
@@ -73,6 +53,62 @@ class WeeklySummaryScreen extends ConsumerWidget {
       dosesForDay: (day) => repo.scheduledDosesForDate(medicines, day),
       allLogs: logs,
       waterLogs: water,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AppDataScaffold(
+      appBar: AppBar(
+        title: Text(
+          ref.watch(appControllerProvider).value?.strings.weeklySummary ??
+              'Weekly summary',
+        ),
+      ),
+      builder: (context, snap) {
+        final s = snap.strings;
+        _loadIfNeeded();
+
+        return FutureBuilder<List<DayHealthStat>>(
+          future: _statsFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            final stats = snapshot.data ?? [];
+            return ListView(
+              padding: pagePadding(context, bottom: 32),
+              children: [
+                Text(
+                  s.disclaimer,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppTheme.mutedText(context),
+                      ),
+                ),
+                const SizedBox(height: 20),
+                _ChartCard(
+                  title: s.medicineAdherence,
+                  color: AppTheme.primaryFor(context),
+                  values:
+                      stats.map((e) => e.medicinePercent.toDouble()).toList(),
+                  labels: stats
+                      .map((e) => DateFormat.E().format(e.date))
+                      .toList(),
+                ),
+                const SizedBox(height: 16),
+                _ChartCard(
+                  title: s.waterIntake,
+                  color: const Color(0xFF0EA5E9),
+                  values: stats.map((e) => e.waterPercent.toDouble()).toList(),
+                  labels: stats
+                      .map((e) => DateFormat.E().format(e.date))
+                      .toList(),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }
@@ -117,7 +153,7 @@ class _ChartCard extends StatelessWidget {
                       getTitlesWidget: (v, _) {
                         final i = v.toInt();
                         if (i < 0 || i >= labels.length) {
-                          return const SizedBox.shrink();
+                          return const SizedBox(width: 0, height: 0);
                         }
                         return Padding(
                           padding: const EdgeInsets.only(top: 6),
@@ -136,12 +172,10 @@ class _ChartCard extends StatelessWidget {
                       x: i,
                       barRods: [
                         BarChartRodData(
-                          toY: values[i],
+                          toY: values[i].clamp(0, 100),
                           color: color,
                           width: 16,
-                          borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(4),
-                          ),
+                          borderRadius: BorderRadius.circular(4),
                         ),
                       ],
                     ),

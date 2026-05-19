@@ -247,6 +247,5 @@ class _VitalsTab extends ConsumerWidget {
       await HealthRepository.instance.addVitals(log);
     }
     ref.invalidate(vitalsProvider);
-    ref.read(appControllerProvider.notifier).refresh();
   }
 }

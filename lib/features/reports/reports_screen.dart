@@ -3,20 +3,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/utils/screen_padding.dart';
 import '../../providers/app_providers.dart';
+import '../../widgets/app_data_scaffold.dart';
 
 class ReportsScreen extends ConsumerWidget {
   const ReportsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final snap = ref.watch(appControllerProvider).value;
-    if (snap == null) return const SizedBox.shrink();
-    final s = snap.strings;
     final export = ref.watch(exportServiceProvider);
 
-    return Scaffold(
-      appBar: AppBar(title: Text(s.healthReports)),
-      body: ListView(
+    return AppDataScaffold(
+      appBar: AppBar(title: Text(ref.watch(appControllerProvider).value?.strings.healthReports ?? 'Reports')),
+      builder: (context, snap) {
+        final s = snap.strings;
+        return ListView(
         padding: pagePadding(context, bottom: 32),
         children: [
           Text(
@@ -57,7 +57,8 @@ class ReportsScreen extends ConsumerWidget {
             ),
           ),
         ],
-      ),
+        );
+      },
     );
   }
 

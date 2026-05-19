@@ -30,6 +30,14 @@ class _AppGateState extends ConsumerState<AppGate> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    ref.listenManual<AsyncValue<DashboardSnapshot?>>(
+      appControllerProvider,
+      (_, next) {
+        if (!next.isLoading || next.hasError) {
+          _tryLeaveSplash();
+        }
+      },
+    );
     Future.delayed(_minSplash, () {
       if (!mounted) return;
       setState(() => _minSplashElapsed = true);
@@ -90,15 +98,6 @@ class _AppGateState extends ConsumerState<AppGate> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<AsyncValue<DashboardSnapshot?>>(
-      appControllerProvider,
-      (_, next) {
-        if (!next.isLoading || next.hasError) {
-          _tryLeaveSplash();
-        }
-      },
-    );
-
     if (_showSplash || _checkingLock) {
       return const SplashScreen();
     }
