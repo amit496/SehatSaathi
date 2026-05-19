@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/theme/app_theme.dart';
 import '../features/bp_log/vitals_screen.dart';
 import '../features/dashboard/dashboard_screen.dart';
 import '../features/medicine/medicine_screen.dart';
@@ -50,6 +51,7 @@ class _MainShellState extends ConsumerState<MainShell> {
         if (!didPop) _goHome();
       },
       child: Scaffold(
+        backgroundColor: AppTheme.lightBg,
         body: IndexedStack(index: _index, children: _pages),
         bottomNavigationBar: NavigationBar(
           selectedIndex: _index,

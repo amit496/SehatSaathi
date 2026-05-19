@@ -82,6 +82,10 @@ class IsarService {
       s.snoozeMinutes = 10;
       patched = true;
     }
+    if (s.isDarkMode) {
+      s.isDarkMode = false;
+      patched = true;
+    }
     if (patched) await saveSettings(s);
     return s;
   }

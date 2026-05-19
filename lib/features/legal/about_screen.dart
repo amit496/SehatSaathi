@@ -19,6 +19,7 @@ class AboutScreen extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
+      backgroundColor: AppTheme.lightBg,
       appBar: AppBar(title: Text(strings.about)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),

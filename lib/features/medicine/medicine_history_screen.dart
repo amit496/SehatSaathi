@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+import '../../core/theme/app_theme.dart';
 import '../../core/utils/date_utils.dart';
 import '../../data/models/enums.dart';
 import '../../data/models/medicine.dart';
@@ -50,6 +51,7 @@ class _MedicineHistoryScreenState extends ConsumerState<MedicineHistoryScreen> {
     final s = ref.watch(appControllerProvider).value?.strings;
 
     return Scaffold(
+      backgroundColor: AppTheme.lightBg,
       appBar: AppBar(
         title: Text(s?.medicineHistory ?? 'Medicine history'),
       ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/theme/app_theme.dart';
 import '../providers/app_providers.dart';
 import '../services/app_lock_service.dart';
 import '../services/notification_service.dart';
@@ -136,6 +137,7 @@ class _AppBootstrapLoader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
+      backgroundColor: AppTheme.lightBg,
       body: Center(child: CircularProgressIndicator()),
     );
   }
@@ -153,6 +155,7 @@ class _BootstrapError extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.lightBg,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),

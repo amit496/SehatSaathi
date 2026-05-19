@@ -42,6 +42,7 @@ class SettingsScreen extends ConsumerWidget {
         final s = AppStrings.of(settings.language);
 
         return Scaffold(
+          backgroundColor: AppTheme.lightBg,
           appBar: AppBar(title: Text(s.settings)),
           body: ListView(
             padding: pagePadding(context, bottom: 32),
@@ -54,14 +55,6 @@ class SettingsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 16),
               _section(s.general),
-              Card(
-                child: SwitchListTile(
-                  title: Text(s.darkMode),
-                  value: settings.isDarkMode,
-                  onChanged: (_) => ctrl.toggleTheme(),
-                  activeTrackColor: AppTheme.primary,
-                ),
-              ),
               Card(
                 child: ListTile(
                   title: Text(s.chooseLanguage),

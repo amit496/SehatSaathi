@@ -87,6 +87,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.lightBg,
       body: Column(
         children: [
           SafeArea(

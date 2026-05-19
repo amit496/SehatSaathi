@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/l10n/app_strings.dart';
@@ -30,16 +29,6 @@ final backupServiceProvider = Provider<BackupService>(
 final exportServiceProvider = Provider<ExportService>(
   (ref) => ExportService(ref.watch(repositoryProvider)),
 );
-
-/// Rebuild [MaterialApp] theme only when dark mode changes — not on every refresh.
-final themeModeProvider = Provider<ThemeMode>((ref) {
-  final isDark = ref.watch(
-    appControllerProvider.select(
-      (async) => async.value?.settings.isDarkMode ?? false,
-    ),
-  );
-  return isDark ? ThemeMode.dark : ThemeMode.light;
-});
 
 class DashboardSnapshot {
   const DashboardSnapshot({
@@ -315,19 +304,6 @@ class AppController extends StateNotifier<AsyncValue<DashboardSnapshot?>> {
   Future<void> setLanguage(AppLanguage language) async {
     final settings = await _repo.getSettings();
     settings.language = language;
-    await _repo.updateSettings(settings);
-    _cachedSettings = settings;
-    final snap = state.value;
-    if (snap != null) {
-      await _patchSnapshot(settings: settings);
-    } else {
-      await refresh();
-    }
-  }
-
-  Future<void> toggleTheme() async {
-    final settings = await _repo.getSettings();
-    settings.isDarkMode = !settings.isDarkMode;
     await _repo.updateSettings(settings);
     _cachedSettings = settings;
     final snap = state.value;

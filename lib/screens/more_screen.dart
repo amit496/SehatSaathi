@@ -11,6 +11,7 @@ import '../features/legal/privacy_policy_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/tutorial/tutorial_screen.dart';
 import '../core/l10n/app_strings.dart';
+import '../core/theme/app_theme.dart';
 import '../data/models/enums.dart';
 import '../providers/app_providers.dart';
 import '../widgets/screen_header.dart';
@@ -25,8 +26,10 @@ class MoreScreen extends ConsumerWidget {
     final snap = ref.watch(appControllerProvider).value;
     final s = snap?.strings;
 
-    return SafeArea(
-      child: ListView(
+    return Scaffold(
+      backgroundColor: AppTheme.lightBg,
+      body: SafeArea(
+        child: ListView(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
         children: [
           ScreenHeader(
@@ -92,6 +95,7 @@ class MoreScreen extends ConsumerWidget {
             screen: const SettingsScreen(),
           ),
         ],
+        ),
       ),
     );
   }

@@ -48,12 +48,17 @@ class _VitalsScreenState extends ConsumerState<VitalsScreen>
   Widget build(BuildContext context) {
     final snap = ref.watch(appControllerProvider).value;
     if (snap == null) {
-      return const Center(child: CircularProgressIndicator());
+      return const Scaffold(
+        backgroundColor: AppTheme.lightBg,
+        body: Center(child: CircularProgressIndicator()),
+      );
     }
     final s = snap.strings;
 
-    return SafeArea(
-      child: Column(
+    return Scaffold(
+      backgroundColor: AppTheme.lightBg,
+      body: SafeArea(
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
@@ -89,6 +94,7 @@ class _VitalsScreenState extends ConsumerState<VitalsScreen>
             ),
           ),
         ],
+        ),
       ),
     );
   }

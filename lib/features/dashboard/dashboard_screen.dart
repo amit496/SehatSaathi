@@ -39,8 +39,10 @@ class DashboardScreen extends ConsumerWidget {
             ? snap.water.consumedMl / snap.water.goalMl
             : 0.0;
 
-        return SafeArea(
-          child: RefreshIndicator(
+        return Scaffold(
+          backgroundColor: AppTheme.lightBg,
+          body: SafeArea(
+            child: RefreshIndicator(
             onRefresh: () => ref.read(appControllerProvider.notifier).refresh(),
             child: ListView(
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
@@ -155,6 +157,7 @@ class DashboardScreen extends ConsumerWidget {
                 ),
               ],
             ),
+          ),
           ),
         );
       },

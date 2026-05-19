@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/constants/meal_timing_labels.dart';
+import '../../core/theme/app_theme.dart';
 import '../../core/l10n/app_strings.dart';
 import '../../core/utils/screen_padding.dart';
 import '../../data/models/enums.dart';
@@ -91,16 +92,26 @@ class MedicineScreen extends ConsumerWidget {
 
     return async.when(
       skipLoadingOnReload: true,
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text('$e')),
+      loading: () => const Scaffold(
+        backgroundColor: AppTheme.lightBg,
+        body: Center(child: CircularProgressIndicator()),
+      ),
+      error: (e, _) => Scaffold(
+        backgroundColor: AppTheme.lightBg,
+        body: Center(child: Text('$e')),
+      ),
       data: (snap) {
         if (snap == null) {
-          return const Center(child: CircularProgressIndicator());
+          return const Scaffold(
+            backgroundColor: AppTheme.lightBg,
+            body: Center(child: CircularProgressIndicator()),
+          );
         }
         final s = snap.strings;
         final bottomInset = systemBottomInset(context);
 
         return Scaffold(
+          backgroundColor: AppTheme.lightBg,
           appBar: AppBar(
             leading: _showBack(context)
                 ? IconButton(

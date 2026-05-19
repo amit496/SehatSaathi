@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../core/l10n/app_strings.dart';
+import '../core/theme/app_theme.dart';
 import '../data/models/enums.dart';
 import '../services/app_lock_service.dart';
 import '../services/isar_service.dart';
@@ -98,6 +99,7 @@ class _AppLockScreenState extends State<AppLockScreen> {
         : _s.enterPin;
 
     return Scaffold(
+      backgroundColor: AppTheme.lightBg,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),

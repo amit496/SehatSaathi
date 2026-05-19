@@ -36,13 +36,11 @@ class _MoodScreenState extends ConsumerState<MoodScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final title =
+        ref.watch(appControllerProvider).value?.strings.moodWellness ?? 'Mood';
+
     return AppDataScaffold(
-      appBar: AppBar(
-        title: Text(
-          ref.watch(appControllerProvider).value?.strings.moodWellness ??
-              'Mood',
-        ),
-      ),
+      appBar: AppBar(title: Text(title)),
       builder: (context, snap) {
         final s = snap.strings;
         return RefreshIndicator(

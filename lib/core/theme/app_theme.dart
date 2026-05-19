@@ -4,8 +4,9 @@ import 'package:flutter/services.dart';
 import 'brand.dart';
 
 class AppTheme {
+  AppTheme._();
+
   static const primary = Brand.accent;
-  static const primaryDark = Brand.accentDark;
   static const secondary = Brand.accentDeep;
   static const danger = Color(0xFFEF4444);
   static const success = Color(0xFF22C55E);
@@ -16,143 +17,132 @@ class AppTheme {
   static const lightBorder = Color(0xFFE2E8F0);
   static const lightText = Color(0xFF0F172A);
 
-  static const darkBg = Color(0xFF0C1210);
-  static const darkCard = Color(0xFF15201C);
-  static const darkCardLight = Color(0xFF1E2E28);
-  static const darkBorder = Color(0xFF2D3F38);
-  static const darkMuted = Color(0xFF94A3B8);
-  static const darkText = Color(0xFFF1F5F9);
+  static Color primaryFor(BuildContext context) => Brand.accent;
 
-  static Color primaryFor(BuildContext context) => Brand.accentFor(context);
-
-  static Color mutedText(BuildContext context) {
-    return Theme.of(context).brightness == Brightness.dark
-        ? darkMuted
-        : lightMuted;
-  }
+  static Color mutedText(BuildContext context) => lightMuted;
 
   static BoxDecoration cardDecoration(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return BoxDecoration(
-      color: isDark ? darkCard : lightCard,
+      color: lightCard,
       borderRadius: BorderRadius.circular(16),
-      border: Border.all(color: isDark ? darkBorder : lightBorder),
+      border: Border.all(color: lightBorder),
     );
   }
 
-  static ThemeData get lightTheme => _build(Brightness.light);
-  static ThemeData get darkTheme => _build(Brightness.dark);
-
-  static ThemeData _build(Brightness brightness) {
-    final isDark = brightness == Brightness.dark;
-    final bg = isDark ? darkBg : lightBg;
-    final card = isDark ? darkCard : lightCard;
-    final text = isDark ? darkText : lightText;
-    final muted = isDark ? darkMuted : lightMuted;
-    final border = isDark ? darkBorder : lightBorder;
-    final p = isDark ? primaryDark : primary;
-
-    return ThemeData(
-      useMaterial3: true,
-      brightness: brightness,
-      scaffoldBackgroundColor: bg,
-      colorScheme: ColorScheme(
-        brightness: brightness,
-        primary: p,
-        onPrimary: isDark ? darkBg : Colors.white,
-        secondary: secondary,
-        onSecondary: Colors.white,
-        surface: bg,
-        onSurface: text,
-        onSurfaceVariant: muted,
-        outline: border,
-        error: danger,
-        onError: Colors.white,
-      ),
-      appBarTheme: AppBarTheme(
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        backgroundColor: Colors.transparent,
-        foregroundColor: text,
-      ),
-      textTheme: TextTheme(
-        headlineMedium: TextStyle(
-          fontSize: 28,
-          fontWeight: FontWeight.w700,
-          color: text,
-          letterSpacing: -0.5,
+  static ThemeData get lightTheme => ThemeData(
+        useMaterial3: true,
+        brightness: Brightness.light,
+        scaffoldBackgroundColor: lightBg,
+        canvasColor: lightBg,
+        colorScheme: const ColorScheme.light(
+          primary: primary,
+          onPrimary: Colors.white,
+          secondary: secondary,
+          onSecondary: Colors.white,
+          surface: lightBg,
+          onSurface: lightText,
+          onSurfaceVariant: lightMuted,
+          outline: lightBorder,
+          error: danger,
+          onError: Colors.white,
         ),
-        titleMedium: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-          color: text,
-        ),
-        bodyMedium: TextStyle(fontSize: 14, color: muted),
-        bodyLarge: TextStyle(fontSize: 16, color: text, height: 1.4),
-      ),
-      navigationBarTheme: NavigationBarThemeData(
-        height: 64,
-        backgroundColor: card,
-        indicatorColor: p.withValues(alpha: 0.15),
-        surfaceTintColor: Colors.transparent,
-        labelTextStyle: WidgetStateProperty.resolveWith((states) {
-          final sel = states.contains(WidgetState.selected);
-          return TextStyle(
-            fontSize: 11,
-            fontWeight: sel ? FontWeight.w600 : FontWeight.w500,
-            color: sel ? p : muted,
-          );
-        }),
-        iconTheme: WidgetStateProperty.resolveWith((states) {
-          final sel = states.contains(WidgetState.selected);
-          return IconThemeData(color: sel ? p : muted, size: 24);
-        }),
-      ),
-      floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: p,
-        foregroundColor: isDark ? darkBg : Colors.white,
-        elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      ),
-      filledButtonTheme: FilledButtonThemeData(
-        style: FilledButton.styleFrom(
-          backgroundColor: p,
-          foregroundColor: isDark ? darkBg : Colors.white,
+        appBarTheme: const AppBarTheme(
           elevation: 0,
-          minimumSize: const Size(0, 48),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          scrolledUnderElevation: 0,
+          backgroundColor: lightBg,
+          surfaceTintColor: Colors.transparent,
+          foregroundColor: lightText,
         ),
-      ),
-      cardTheme: CardThemeData(
-        color: card,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: border),
+        textTheme: const TextTheme(
+          headlineMedium: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.w700,
+            color: lightText,
+            letterSpacing: -0.5,
+          ),
+          titleMedium: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: lightText,
+          ),
+          bodyMedium: TextStyle(fontSize: 14, color: lightMuted),
+          bodyLarge: TextStyle(fontSize: 16, color: lightText, height: 1.4),
         ),
-      ),
-      dividerColor: border,
-      inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: isDark ? darkCardLight : lightCard,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: border),
+        navigationBarTheme: NavigationBarThemeData(
+          height: 64,
+          backgroundColor: lightCard,
+          indicatorColor: primary.withValues(alpha: 0.15),
+          surfaceTintColor: Colors.transparent,
+          labelTextStyle: WidgetStateProperty.resolveWith((states) {
+            final sel = states.contains(WidgetState.selected);
+            return TextStyle(
+              fontSize: 11,
+              fontWeight: sel ? FontWeight.w600 : FontWeight.w500,
+              color: sel ? primary : lightMuted,
+            );
+          }),
+          iconTheme: WidgetStateProperty.resolveWith((states) {
+            final sel = states.contains(WidgetState.selected);
+            return IconThemeData(color: sel ? primary : lightMuted, size: 24);
+          }),
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: border),
+        floatingActionButtonTheme: const FloatingActionButtonThemeData(
+          backgroundColor: primary,
+          foregroundColor: Colors.white,
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(16)),
+          ),
         ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: p, width: 2),
+        filledButtonTheme: FilledButtonThemeData(
+          style: FilledButton.styleFrom(
+            backgroundColor: primary,
+            foregroundColor: Colors.white,
+            elevation: 0,
+            minimumSize: const Size(0, 48),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
         ),
-      ),
-    );
-  }
-
-  static SystemUiOverlayStyle overlayFor(bool isDark) => SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+        cardTheme: CardThemeData(
+          color: lightCard,
+          elevation: 0,
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: const BorderSide(color: lightBorder),
+          ),
+        ),
+        dividerColor: lightBorder,
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: lightCard,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: lightBorder),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: lightBorder),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: primary, width: 2),
+          ),
+        ),
+        pageTransitionsTheme: const PageTransitionsTheme(
+          builders: {
+            TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+            TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+          },
+        ),
       );
+
+  static const lightOverlay = SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.dark,
+    systemNavigationBarColor: lightBg,
+    systemNavigationBarIconBrightness: Brightness.dark,
+  );
 }

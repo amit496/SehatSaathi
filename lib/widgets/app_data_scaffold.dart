@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/theme/app_theme.dart';
 import '../providers/app_providers.dart';
 
-/// Full-screen shell while app data is loading or unavailable (avoids black/empty UI).
+/// Full-screen shell with a light background on every route.
 class AppDataScaffold extends ConsumerWidget {
   const AppDataScaffold({
     super.key,
@@ -20,23 +21,37 @@ class AppDataScaffold extends ConsumerWidget {
 
     return async.when(
       skipLoadingOnReload: true,
-      loading: () => Scaffold(
+      loading: () => _page(
         appBar: appBar,
         body: const Center(child: CircularProgressIndicator()),
       ),
-      error: (e, _) => Scaffold(
+      error: (e, _) => _page(
         appBar: appBar,
         body: Center(child: Text('$e')),
       ),
       data: (snap) {
         if (snap == null) {
-          return Scaffold(
+          return _page(
             appBar: appBar,
             body: const Center(child: CircularProgressIndicator()),
           );
         }
-        return builder(context, snap);
+        return _page(
+          appBar: appBar,
+          body: builder(context, snap),
+        );
       },
+    );
+  }
+
+  static Scaffold _page({
+    PreferredSizeWidget? appBar,
+    required Widget body,
+  }) {
+    return Scaffold(
+      backgroundColor: AppTheme.lightBg,
+      appBar: appBar,
+      body: body,
     );
   }
 }

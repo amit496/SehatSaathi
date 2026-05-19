@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/theme/app_theme.dart';
 import '../../data/models/enums.dart';
 import '../../data/models/health_profile.dart';
 import '../../core/utils/screen_padding.dart';
@@ -17,6 +18,7 @@ class FamilyScreen extends ConsumerWidget {
     final s = snap?.strings;
 
     return Scaffold(
+      backgroundColor: AppTheme.lightBg,
       appBar: AppBar(
         title: Text(s?.familyProfiles ?? 'Family profiles'),
       ),

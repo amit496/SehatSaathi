@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../core/theme/app_theme.dart';
+
 class BreathingScreen extends StatefulWidget {
   const BreathingScreen({super.key});
 
@@ -55,6 +57,7 @@ class _BreathingScreenState extends State<BreathingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.lightBg,
       appBar: AppBar(title: const Text('Breathing')),
       body: Center(
         child: Column(

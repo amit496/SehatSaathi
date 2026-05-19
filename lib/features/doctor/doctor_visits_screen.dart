@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../core/theme/app_theme.dart';
 import '../../core/utils/screen_padding.dart';
 import '../../data/models/doctor_visit.dart';
 import '../../data/repositories/health_repository.dart';
@@ -137,6 +138,7 @@ class _DoctorVisitsScreenState extends ConsumerState<DoctorVisitsScreen> {
     final s = snap?.strings;
 
     return Scaffold(
+      backgroundColor: AppTheme.lightBg,
       appBar: AppBar(title: Text(s?.doctorVisits ?? 'Doctor appointments')),
       body: Column(
         children: [

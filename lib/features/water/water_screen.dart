@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/theme/app_theme.dart';
 import '../../providers/app_providers.dart';
 import '../../widgets/progress_ring.dart';
 import '../../widgets/screen_header.dart';
@@ -17,11 +18,20 @@ class WaterScreen extends ConsumerWidget {
 
     return async.when(
       skipLoadingOnReload: true,
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text('$e')),
+      loading: () => const Scaffold(
+        backgroundColor: AppTheme.lightBg,
+        body: Center(child: CircularProgressIndicator()),
+      ),
+      error: (e, _) => Scaffold(
+        backgroundColor: AppTheme.lightBg,
+        body: Center(child: Text('$e')),
+      ),
       data: (snap) {
         if (snap == null) {
-          return const Center(child: CircularProgressIndicator());
+          return const Scaffold(
+            backgroundColor: AppTheme.lightBg,
+            body: Center(child: CircularProgressIndicator()),
+          );
         }
         final s = snap.strings;
         final settings = snap.settings;
@@ -29,8 +39,10 @@ class WaterScreen extends ConsumerWidget {
             ? snap.water.consumedMl / snap.water.goalMl
             : 0.0;
 
-        return SafeArea(
-          child: ListView(
+        return Scaffold(
+          backgroundColor: AppTheme.lightBg,
+          body: SafeArea(
+            child: ListView(
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
             children: [
               ScreenHeader(title: s.water, subtitle: s.dailyGoal, onBack: onBack),
@@ -90,6 +102,7 @@ class WaterScreen extends ConsumerWidget {
                   onTap: () => _editTimes(context, ctrl, settings.waterReminderTimes, s),
                 ),
             ],
+            ),
           ),
         );
       },

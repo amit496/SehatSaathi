@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../core/theme/app_theme.dart';
+
 class LegalSection {
   const LegalSection({this.title, required this.body});
 
@@ -24,6 +26,7 @@ class LegalDocumentScreen extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
+      backgroundColor: AppTheme.lightBg,
       appBar: AppBar(title: Text(pageTitle)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),

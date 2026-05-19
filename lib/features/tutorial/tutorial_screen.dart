@@ -19,6 +19,7 @@ class TutorialScreen extends StatelessWidget {
     final topics = _topics(strings);
 
     return Scaffold(
+      backgroundColor: AppTheme.lightBg,
       appBar: AppBar(title: Text(strings.tutorial)),
       body: ListView(
         padding: pagePadding(context, bottom: 32),

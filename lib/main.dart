@@ -11,9 +11,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await bootstrapApp();
 
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent,
-  ));
+  SystemChrome.setSystemUIOverlayStyle(AppTheme.lightOverlay);
 
   runApp(const ProviderScope(child: SehatSaathiApp()));
 }
@@ -40,18 +38,16 @@ class _SehatSaathiAppState extends ConsumerState<SehatSaathiApp> {
 
   @override
   Widget build(BuildContext context) {
-    final themeMode = ref.watch(themeModeProvider);
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'SehatSaathi',
       theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: themeMode,
+      themeMode: ThemeMode.light,
       builder: (context, child) {
-        final dark = Theme.of(context).brightness == Brightness.dark;
-        SystemChrome.setSystemUIOverlayStyle(AppTheme.overlayFor(dark));
-        return child ?? const ColoredBox(color: Color(0xFFF8FAFA));
+        return ColoredBox(
+          color: AppTheme.lightBg,
+          child: child ?? const SizedBox.shrink(),
+        );
       },
       home: const AppGate(),
     );

@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../../core/constants/meal_timing_labels.dart';
+import '../../core/theme/app_theme.dart';
 import '../../core/constants/weekday_labels.dart';
 import '../../core/l10n/app_strings.dart';
 import '../../data/models/enums.dart';
@@ -120,6 +121,7 @@ class _MedicineFormScreenState extends ConsumerState<MedicineFormScreen> {
     final s = _s;
 
     return Scaffold(
+      backgroundColor: AppTheme.lightBg,
       appBar: AppBar(
         title: Text(
           widget.medicine == null ? s.addMedicine : s.editMedicine,

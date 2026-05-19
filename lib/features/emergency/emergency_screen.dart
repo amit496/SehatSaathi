@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../core/theme/app_theme.dart';
 import '../../data/models/emergency_info.dart';
 import '../../data/repositories/health_repository.dart';
 import '../../providers/app_providers.dart';
@@ -102,6 +103,7 @@ class _EmergencyScreenState extends ConsumerState<EmergencyScreen> {
     final s = snap?.strings;
 
     return Scaffold(
+      backgroundColor: AppTheme.lightBg,
       appBar: AppBar(
         title: Text(s?.emergencyInfo ?? 'Emergency info'),
       ),
